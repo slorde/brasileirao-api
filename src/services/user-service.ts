@@ -1,15 +1,10 @@
 import bcrypt from 'bcrypt';
-import hash from 'object-hash';
-import User from '../model/user-model';
+import jwt from 'jsonwebtoken';
+import User from '../model/User';
 import { AuthenticationFailure, BadRequestError } from '../helpers/custom-exception';
 class UserService {
-    private model;
-    constructor() {
-        this.model = new User();
-    }
-
-    async singin(login: string, password: string) {
-        const user = await this.model.findByLogin(login);
+    async singin(username: string, password: string) {
+        const user = await User.findOne({ where: { username }});
         if (!user) {
             throw new BadRequestError("User don't exist");
         }
@@ -20,23 +15,28 @@ class UserService {
             throw new AuthenticationFailure('Wrong email or password.');
         }
 
-        const token = '';//user.generateAuthToken(); gerar jwt
+        const token = this.generateAuthToken(user.id);
         return { token, userId: user.id };
     }
 
-    async create(login: string, password: string) {
-        let user = await this.model.findByLogin(login);
+    async create(username: string, password: string) {
+        let user = await User.findOne({ where: { username }});
         if (user) {
             throw new BadRequestError('User already registered.');
         }
 
-        const id = hash({ login });
         const encryptedPassword = await bcrypt.hash(password, 10);
-        await this.model.insertUser(id, login, encryptedPassword);
-        
-        const token = '';//user.generateAuthToken();
-        return { token, userId: id };
+        const usuario = User.build({ username, password: encryptedPassword, createdAt: new Date() })
+        await usuario.save();
+        return this.singin(username, password);
     }
+
+    generateAuthToken(id: number) {
+        console.log(process.env.PRIVATE_KEY);
+        
+        const token = jwt.sign({ _id: id }, process.env.PRIVATE_KEY||'');
+        return token;
+    };
 }
 
 export default UserService;

@@ -1,5 +1,4 @@
-import postgres from 'postgres'
+import { Sequelize } from 'sequelize';
+const connection = new Sequelize(process.env.DB_PATH || '', {dialect: 'postgres'}); 
 
-const sql = postgres(process.env.DB_PATH || '',{});
-
-export default sql
+export default connection;
