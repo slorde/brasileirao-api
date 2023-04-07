@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "tsc -w",
     "build": "npm run clear;tsc",
-    "start": "npm run build;node dist/",
+    "start": "tsc;node dist/",
     "clear": "rm -rf dist/"
   },
   "author": "",
