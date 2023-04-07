@@ -10,20 +10,21 @@ class CompetitionService {
 
     async find(type: string | undefined) {
         const competitions = await Competition.findAll();
-        return competitions
+        return Promise.all(competitions
             .filter(competition => {
                 if (!type) return true;
                 if (type === 'active') return !competition.endDate;
                 if (type === 'unstarted') return !competition.endDate && !competition.beginDate;
                 if (type === 'finished') return competition.endDate && competition.beginDate;
-            }).map((competition) => {
+            }).map(async (competition) => {
+                const participants = await this.resultService.resultDetail(competition.id);
                 return {
                     id: competition.id,
                     year: competition.year,
                     value: competition.value,
-                    participants: this.resultService.resultDetail(competition.id)
+                    participants
                 }
-            });
+            }));
     }
 
     async create(year: number, value: number) {

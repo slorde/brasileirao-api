@@ -3,21 +3,33 @@ import Player from "../model/Player";
 
 class PlayerService {
     async getResultPlayer() {
-        let player = await Player.findOne({ where: { name: 'RESULTADO' }});
+        return this.getPlayerByName('RESULTADO');
+    }
+
+    async getUserPlayers() {
+        return Player.findAll({ where: { UserId: { [Op.ne]: null } } });
+    }
+
+    async getUserPlayer(id: number, name: string) {
+        const player = await Player.findOne({ where: { UserId: id } });
+
         if (!player) {
-            player = Player.build({ name: 'RESULTADO'});
-            await player.save();
+            return Player.create({ name, UserId: id })
         }
 
         return player;
     }
 
-    async getUserPlayers() {
-        return Player.findAll({ where: { UserId: { [Op.ne]: null }}});
+    async getPlayer(id: number) {
+        return Player.findOne({ where: { id } })
     }
 
-    async getPlayer(id: number) {
-        return Player.findOne({ where: { id }})
+    async getPlayerByName(name: string) {
+        const player = await Player.findOne({ where: { name } });
+        if (!player)
+            return Player.create({ name });
+
+        return player;
     }
 }
 

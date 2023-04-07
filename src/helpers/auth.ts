@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-module.exports = (req:any, res: any, next: Function) => {
+export default (req:any, res: any, next: Function) => {
     const token = req.headers['x-access-token'];
 
     if (!token) return res.status(401).send('Access denied. No token provided.');

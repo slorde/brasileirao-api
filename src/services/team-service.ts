@@ -10,6 +10,10 @@ class TeamService {
 
         return team;
     }
+
+    async getTeamById(id: number) {
+        return Team.findOne({ where: { id }});
+    }
 }
 
 export default TeamService;

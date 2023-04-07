@@ -12,13 +12,9 @@ class Controller {
 
         try {
             const { type } = query;
-            console.log(type);
-
             const competitions = await this.service.find(type);
             res.status(200).send(competitions);
         } catch (error) {
-            console.log(error);
-
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
@@ -39,8 +35,6 @@ class Controller {
             await this.service.create(year, value);
             res.status(204).send();
         } catch (error) {
-            console.log(error);
-
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
@@ -56,8 +50,6 @@ class Controller {
             await this.service.start(req.params.id);
             res.status(204).send();
         } catch (error) {
-            console.log(error);
-            
             res.status(500).send({ message: 'Unexpected error' });
         }
 
@@ -69,19 +61,17 @@ class Controller {
             await this.service.end(req.params.id);
             res.status(204).send();
         } catch (error) {
-            console.log(error);
             res.status(500).send({ message: 'Unexpected error' });
         }
 
         return next();
     }
-    
+
     async leaderBoard(req: any, res: any, next: Function) {
         try {
             const result = await this.service.leaderBoard();
             res.status(200).send(result);
         } catch (error) {
-            console.log(error);
             res.status(500).send({ message: 'Unexpected error' });
         }
 

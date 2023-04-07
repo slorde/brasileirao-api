@@ -1,14 +1,15 @@
 import express from 'express';
 import Controller from './controller';
+import auth from '../../helpers/auth';
 
 const router = express.Router();
 
-router.post('/', (req, res, next) => {
+router.post('/', auth, (req, res, next) => {
     const controller = new Controller();
     return controller.create(req, res, next);
 });
 
-router.get('/', (req, res, next) => {
+router.get('/', auth, (req, res, next) => {
     const controller = new Controller();
     return controller.find(req, res, next);
 });
@@ -23,7 +24,7 @@ router.put('/:id/end', (req, res, next) => {
     return controller.end(req, res, next);
 });
 
-router.get('/leaderboard', (req, res, next) => {
+router.get('/leaderboard', auth, (req, res, next) => {
     const controller = new Controller();
     return controller.leaderBoard(req, res, next);
 });

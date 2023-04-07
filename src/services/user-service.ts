@@ -4,7 +4,7 @@ import User from '../model/User';
 import { AuthenticationFailure, BadRequestError } from '../helpers/custom-exception';
 class UserService {
     async singin(username: string, password: string) {
-        const user = await User.findOne({ where: { username }});
+        const user = await User.findOne({ where: { username } });
         if (!user) {
             throw new BadRequestError("User don't exist");
         }
@@ -20,7 +20,7 @@ class UserService {
     }
 
     async create(username: string, password: string) {
-        let user = await User.findOne({ where: { username }});
+        let user = await User.findOne({ where: { username } });
         if (user) {
             throw new BadRequestError('User already registered.');
         }
@@ -32,9 +32,7 @@ class UserService {
     }
 
     generateAuthToken(id: number) {
-        console.log(process.env.PRIVATE_KEY);
-        
-        const token = jwt.sign({ _id: id }, process.env.PRIVATE_KEY||'');
+        const token = jwt.sign({ _id: id }, process.env.PRIVATE_KEY || '');
         return token;
     };
 }

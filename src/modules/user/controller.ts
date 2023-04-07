@@ -21,12 +21,11 @@ class Controller {
             }
 
             const { token, userId } = await this.service.singin(username, password);
-            res.header('x-auth-token', token).send({
-                userId
+            res.status(200).send({
+                userId,
+                token
             });
         } catch (error) {
-            console.log(error);
-            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
@@ -46,12 +45,11 @@ class Controller {
 
             const { token, userId } = await this.service.create(username, password);
 
-            res.header('x-auth-token', token).send({
-                userId
+            res.status(200).send({
+                userId,
+                token
             });
         } catch (error) {
-            console.log(error);
-            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
