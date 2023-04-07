@@ -65,7 +65,7 @@ class ResultService {
         }));
     }
 
-    async resultDetail(competitionId: number, filterUsers?: boolean) {
+    async resultDetail(competitionId: number, returnResults:boolean = true, filterUsers?: boolean) {
         const query: any = { where: { CompetitionId: competitionId } };
         if (filterUsers) {
             const players = await this.playerService.getUserPlayers();
@@ -86,10 +86,10 @@ class ResultService {
 
                 const playerResults = results.filter(r => r.PlayerId === rp);
 
-                const resultDAO = await Promise.all(playerResults.map(async (pr) => {
+                const resultDAO = returnResults ? await Promise.all(playerResults.map(async (pr) => {
                     const team = await this.teamService.getTeamById(pr.TeamId);
                     return { position: pr.position, team: team?.name }
-                }));
+                })): [];
 
                 return {
                     playerName: player.name,

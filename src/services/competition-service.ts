@@ -8,7 +8,7 @@ class CompetitionService {
         this.resultService = new ResultService();
     }
 
-    async find(type: string | undefined) {
+    async find(type: string | undefined, returnResults = true, filterUsers = false) {
         const competitions = await Competition.findAll();
         return Promise.all(competitions
             .filter(competition => {
@@ -42,7 +42,30 @@ class CompetitionService {
     }
 
     async leaderBoard() {
-        const competitions = await this.find('finished');
+        const competitions = await this.find('finished', false, true);
+
+        const calculatedChampions: any = {};
+        competitions.forEach(c => {
+            const scoreSortedParticipants = c.participants.sort((a,b)=> a?.score-b?.score);
+            const champions = [scoreSortedParticipants[0]];
+
+            if (scoreSortedParticipants[1]?.score === scoreSortedParticipants[0]?.score) {
+                champions.push(scoreSortedParticipants[1])
+            }
+
+            champions.forEach(champion => {
+                const name = champion?.playerName || 'erro';
+                const winsNUmber = calculatedChampions[name] || 0;
+                calculatedChampions[name] = winsNUmber + 1;
+            })
+        });
+
+        return Object.keys(calculatedChampions).map(key => {
+            return {
+                player: key,
+                winNumbers: calculatedChampions[key]
+            }
+        })
     }
 }
 
