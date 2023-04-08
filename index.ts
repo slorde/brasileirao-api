@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv'
 dotenv.config();
 import express from 'express';
+import cors from 'cors';
 import database from './src/helpers/db';
 
 (async () => {
@@ -8,12 +9,12 @@ import database from './src/helpers/db';
         await database.sync();
         console.log('Database synced');
     } catch (error) {
-        console.log('Database sync error',error);
+        console.log('Database sync error', error);
     }
 })();
 
 const app = express()
-
+app.use(cors);
 app.use(express.json());
 app.use('/api/users', require('./src/modules/user/route.js'));
 app.use('/api/competitions', require('./src/modules/competition/route.js'));
