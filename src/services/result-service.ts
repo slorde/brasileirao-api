@@ -65,7 +65,7 @@ class ResultService {
         }));
     }
 
-    async resultDetail(competitionId: number, returnResults:boolean = true, filterUsers?: boolean) {
+    async resultDetail(competitionId: number, returnResults: boolean = true, filterUsers?: boolean) {
         const query: any = { where: { CompetitionId: competitionId } };
         if (filterUsers) {
             const players = await this.playerService.getUserPlayers();
@@ -77,7 +77,7 @@ class ResultService {
         const resultCompetitionPlayer = await this.playerService.getResultPlayer();
         const resultCompetition = results.filter(r => r.PlayerId === resultCompetitionPlayer?.id);
 
-        return Promise.all(resultPlayers
+        const participants = await Promise.all(resultPlayers
             .filter(rp => rp !== resultCompetitionPlayer?.id)
             .map(async (rp) => {
                 const player = await this.playerService.getPlayer(rp);
@@ -89,14 +89,16 @@ class ResultService {
                 const resultDAO = returnResults ? await Promise.all(playerResults.map(async (pr) => {
                     const team = await this.teamService.getTeamById(pr.TeamId);
                     return { position: pr.position, team: team?.name }
-                })): [];
+                })) : [];
 
                 return {
                     playerName: player.name,
                     score: this.calculateScore(playerResults, resultCompetition),
                     results: resultDAO
                 }
-            }))
+            }));
+
+        return participants.sort((a, b) => b?.score - a?.score);
     }
 
     calculateScore(playerResults: Result[], resultCompetition: Result[]) {

@@ -22,6 +22,8 @@ class CompetitionService {
                     id: competition.id,
                     year: competition.year,
                     value: competition.value,
+                    started: !!competition.beginDate,
+                    finished: competition.endDate && competition.beginDate,
                     participants
                 }
             }));
