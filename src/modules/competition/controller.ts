@@ -25,6 +25,20 @@ class Controller {
         return next();
     }
 
+    async findUser(req: any, res: any, next: Function) {
+        try {
+            const { id } = req.params;
+            const userId = req.user._id;
+            const results = await this.service.findUser(id, userId);
+            res.status(200).send(results);
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ message: 'Unexpected error' });
+        }
+
+        return next();
+    }
+
     async create(req: any, res: any, next: Function) {
         try {
             const { year, value } = req.body;

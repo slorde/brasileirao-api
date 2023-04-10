@@ -11,7 +11,7 @@ type ApiFutebol = {
 
 type Standings = {
     position: number,
-    teamId: number
+    team: string
 }
 
 type PlayerParam = {
@@ -65,6 +65,18 @@ class ResultService {
         }));
     }
 
+    async getResultsTeams(competitionId: number, userId: number) {
+        const player = await this.playerService.getUserPlayer(userId, 'error');
+        const results = await Result.findAll({ where: { CompetitionId: competitionId, PlayerId: player.id } });
+
+        return Promise.all(results
+            .sort((a,b) => a.position-b.position)
+            .map(async (r) => {
+            const team = await this.teamService.getTeamById(r.TeamId);
+            return team?.name;
+        }))
+    }
+
     async resultDetail(competitionId: number, returnResults: boolean = true, filterUsers?: boolean) {
         const query: any = { where: { CompetitionId: competitionId } };
         if (filterUsers) {
@@ -92,6 +104,7 @@ class ResultService {
                 })) : [];
 
                 return {
+                    userId: player.UserId,
                     playerName: player.name,
                     score: this.calculateScore(playerResults, resultCompetition),
                     results: resultDAO
@@ -123,10 +136,11 @@ class ResultService {
         if (!player) throw new Error('Failed to create player');
 
         return Promise.all(standings.map(async (standing) => {
+            const teamObject = await this.teamService.getTeam(standing.team);
             return Result.create({
                 CompetitionId: competitionId,
                 PlayerId: player?.id,
-                TeamId: standing.teamId,
+                TeamId: teamObject.id,
                 position: standing.position
             });
         }));

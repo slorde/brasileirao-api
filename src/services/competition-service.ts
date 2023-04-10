@@ -23,10 +23,14 @@ class CompetitionService {
                     year: competition.year,
                     value: competition.value,
                     started: !!competition.beginDate,
-                    finished: competition.endDate && competition.beginDate,
+                    finished: (!!competition.endDate && !!competition.beginDate),
                     participants
                 }
             }));
+    }
+
+    async findUser(id: number, userId: number) {
+        return this.resultService.getResultsTeams(id, userId);
     }
 
     async create(year: number, value: number) {
@@ -48,7 +52,7 @@ class CompetitionService {
 
         const calculatedChampions: any = {};
         competitions.forEach(c => {
-            const scoreSortedParticipants = c.participants.sort((a,b)=> a?.score-b?.score);
+            const scoreSortedParticipants = c.participants.sort((a, b) => a?.score - b?.score);
             const champions = [scoreSortedParticipants[0]];
 
             if (scoreSortedParticipants[1]?.score === scoreSortedParticipants[0]?.score) {

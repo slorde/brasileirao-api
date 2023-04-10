@@ -29,4 +29,10 @@ router.get('/leaderboard', auth, (req, res, next) => {
     return controller.leaderBoard(req, res, next);
 });
 
+router.get('/:id/my', auth, (req, res, next) => {
+    const controller = new Controller();
+    return controller.findUser(req, res, next);
+});
+
+
 module.exports = router;

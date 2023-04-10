@@ -5,7 +5,7 @@ import User from './User';
 class Player extends Model {
   public id!: number;
   public name!: string;
-  public UserId?: string;
+  public UserId?: number;
 }
 
 Player.init(
