@@ -69,12 +69,24 @@ class ResultService {
         const player = await this.playerService.getUserPlayer(userId, 'error');
         const results = await Result.findAll({ where: { CompetitionId: competitionId, PlayerId: player.id } });
 
+        const resultPlayer = await this.playerService.getResultPlayer();
+        const resultPlayerResults = await Result.findAll({ where: { CompetitionId: competitionId, PlayerId: resultPlayer.id } });
+
+        if (resultPlayerResults.length !== results.length) {
+            const teams = await Promise.all(resultPlayerResults
+                .map(async (r) => {
+                    const team = await this.teamService.getTeamById(r.TeamId);
+                    return team?.name;
+                }));
+            return teams.sort();
+        }
+
         return Promise.all(results
-            .sort((a,b) => a.position-b.position)
+            .sort((a, b) => a.position - b.position)
             .map(async (r) => {
-            const team = await this.teamService.getTeamById(r.TeamId);
-            return team?.name;
-        }))
+                const team = await this.teamService.getTeamById(r.TeamId);
+                return team?.name;
+            }));
     }
 
     async resultDetail(competitionId: number, returnResults: boolean = true, filterUsers?: boolean) {
@@ -137,6 +149,39 @@ class ResultService {
 
         return Promise.all(standings.map(async (standing) => {
             const teamObject = await this.teamService.getTeam(standing.team);
+            return Result.create({
+                CompetitionId: competitionId,
+                PlayerId: player?.id,
+                TeamId: teamObject.id,
+                position: standing.position
+            });
+        }));
+    }
+
+    async update(competitionId: number, standings: Standings[], userId: number) {
+        const player = await this.playerService.getUserPlayer(userId, 'error');
+
+        return Promise.all(standings.map(async (standing) => {
+            const teamObject = await this.teamService.getTeam(standing.team);
+            const results = await Result.findOne(
+                {
+                    where: {
+                        CompetitionId: competitionId,
+                        PlayerId: player?.id,
+                        TeamId: teamObject.id
+                    }
+
+                });
+            if (results)
+                return Result.update({ position: standing.position },
+                    {
+                        where: {
+                            CompetitionId: competitionId,
+                            PlayerId: player?.id,
+                            TeamId: teamObject.id
+                        }
+                    })
+
             return Result.create({
                 CompetitionId: competitionId,
                 PlayerId: player?.id,
