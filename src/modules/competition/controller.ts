@@ -11,8 +11,8 @@ class Controller {
         const { query } = req;
 
         try {
-            const { type } = query;
-            const competitions = await this.service.find(type);
+            const { type, year } = query;
+            const competitions = await this.service.find(type, year);
             res.status(200).send(competitions);
         } catch (error) {
             if (error instanceof CustomError) {
