@@ -102,7 +102,6 @@ class ResultService {
         const resultCompetition = results.filter(r => r.PlayerId === resultCompetitionPlayer?.id);
 
         const participants = await Promise.all(resultPlayers
-            .filter(rp => rp !== resultCompetitionPlayer?.id)
             .map(async (rp) => {
                 const player = await this.playerService.getPlayer(rp);
 
