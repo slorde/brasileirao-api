@@ -14,9 +14,10 @@ class CompetitionService {
             .filter(competition => {
                 if (!type) return true;
                 if (type === 'active') return !competition.endDate;
+                if (type === 'started') return !!competition.beginDate;
                 if (type === 'unstarted') return !competition.endDate && !competition.beginDate;
                 if (type === 'finished') return competition.endDate && competition.beginDate;
-            }).filter(c => { return year ? String(c.year) === year: true })
+            }).filter(c => { return year ? String(c.year) === year : true })
             .map(async (competition) => {
                 const participants = await this.resultService.resultDetail(competition.id);
                 return {
@@ -53,7 +54,17 @@ class CompetitionService {
 
         const calculatedChampions: any = {};
         competitions.forEach(c => {
-            const scoreSortedParticipants = c.participants.sort((a, b) => a?.score - b?.score);
+            const userParticipants = c.participants
+                .filter(p => p?.playerName !== 'RESULTADO' && !!p?.userId);
+
+            userParticipants.forEach(up => {
+                const name = up?.playerName || 'erro';
+                if (!calculatedChampions[name])
+                    calculatedChampions[name] = 0;
+            })
+
+            const scoreSortedParticipants = userParticipants
+                .sort((a, b) => a?.score - b?.score);
             const champions = [scoreSortedParticipants[0]];
 
             if (scoreSortedParticipants[1]?.score === scoreSortedParticipants[0]?.score) {
