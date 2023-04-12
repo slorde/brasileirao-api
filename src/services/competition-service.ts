@@ -8,7 +8,7 @@ class CompetitionService {
         this.resultService = new ResultService();
     }
 
-    async find(type: string | undefined, year?: number) {
+    async find(type: string | undefined, year?: string) {
         const competitions = await Competition.findAll();
         return Promise.all(competitions
             .filter(competition => {
@@ -16,7 +16,7 @@ class CompetitionService {
                 if (type === 'active') return !competition.endDate;
                 if (type === 'unstarted') return !competition.endDate && !competition.beginDate;
                 if (type === 'finished') return competition.endDate && competition.beginDate;
-            }).filter(c => { return year ? c.year === year: true })
+            }).filter(c => { return year ? String(c.year) === year: true })
             .map(async (competition) => {
                 const participants = await this.resultService.resultDetail(competition.id);
                 return {
