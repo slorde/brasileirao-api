@@ -35,6 +35,18 @@ class UserService {
         const token = jwt.sign({ _id: id }, process.env.PRIVATE_KEY || '');
         return token;
     };
+
+    async upsert(username: string, password: string) {
+        const user = await User.findOne({ where: { username } });
+        if (user)
+        return user;
+        
+        const encryptedPassword = await bcrypt.hash(password, 10);
+        return User.create({
+            username: username,
+            password: encryptedPassword
+        });
+    }
 }
 
 export default UserService;

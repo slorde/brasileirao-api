@@ -19,6 +19,16 @@ class CompetitionService {
                 if (type === 'finished') return competition.endDate && competition.beginDate;
             }).filter(c => { return year ? String(c.year) === year : true })
             .map(async (competition) => {
+                if (type === 'finished') {
+                    return {
+                        id: competition.id,
+                        year: competition.year,
+                        value: competition.value,
+                        started: !!competition.beginDate,
+                        finished: (!!competition.endDate && !!competition.beginDate)
+                    }    
+                }
+
                 const participants = await this.resultService.resultDetail(competition.id);
                 return {
                     id: competition.id,

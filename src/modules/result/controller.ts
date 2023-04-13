@@ -1,5 +1,6 @@
 import Service from "../../services/result-service";
-import { BadRequestError, CustomError } from '../../helpers/custom-exception';
+import { CustomError } from '../../helpers/custom-exception';
+import migration from '../../migration/migration.json'
 
 class Controller {
     private service: Service;
@@ -35,6 +36,19 @@ class Controller {
             await this.service.update(competitionId, standings, userId);
             res.status(204).send();
         } catch (error) {
+            res.status(500).send({ message: 'Unexpected error' });
+        }
+
+        return next();
+    }
+
+    async migration(req: any, res: any, next: Function) {
+        try {
+            await this.service.migrate(migration);
+            res.status(204).send();
+        } catch (error) {
+            console.log(error);
+            
             res.status(500).send({ message: 'Unexpected error' });
         }
 

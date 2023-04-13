@@ -2,7 +2,10 @@ import fetch from 'cross-fetch';
 import Result from "../model/Result";
 import PlayerService from "./player-service";
 import TeamService from "./team-service";
+import UserService from './user-service';
+import Competition from '../model/Competition';
 import Player from '../model/Player';
+
 
 type ApiFutebol = {
     posicao: number,
@@ -23,9 +26,11 @@ type PlayerParam = {
 class ResultService {
     private playerService;
     private teamService;
+    private userService;
     constructor() {
         this.playerService = new PlayerService();
         this.teamService = new TeamService();
+        this.userService = new UserService();
     }
 
     async updateResults(competitionId: number) {
@@ -188,6 +193,34 @@ class ResultService {
                 position: standing.position
             });
         }));
+    }
+
+    async migrate(migration: any) {
+        const users = migration.users;
+        for (const user of users) {
+            const newUser = await this.userService.upsert(user.username, user.senha);
+            await this.playerService.getUserPlayer(newUser.id, user.username);
+        }
+
+        for (const resultado of migration.resultados) {
+            const exists = await Competition.findOne({ where: { year: resultado.ano } });
+            if (exists) continue;
+
+            const competition = await Competition.create({ year: resultado.ano, value: 0, beginDate: new Date(), endDate: new Date() });
+            for (const playersResults of resultado.classificacoes) {
+                const p = await this.playerService.getPlayerByName(playersResults.player);
+                for (const res of playersResults.results) {
+                    const teamObject = await this.teamService.getTeam(res.team);
+                    await Result.create({
+                        CompetitionId: competition.id,
+                        PlayerId: p.id,
+                        TeamId: teamObject.id,
+                        position: res.position
+                    });
+                }
+            }
+        }
+        return;
     }
 }
 

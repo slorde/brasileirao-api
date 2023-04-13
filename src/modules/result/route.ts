@@ -14,5 +14,10 @@ router.put('/:id', auth, (req, res, next) => {
     return controller.update(req, res, next);
 });
 
+router.post('/migration/temp', auth, (req, res, next) => {
+    const controller = new Controller();
+    return controller.migration(req, res, next);
+});
+
 
 module.exports = router;
