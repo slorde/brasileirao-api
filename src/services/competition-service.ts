@@ -17,16 +17,17 @@ class CompetitionService {
                 if (type === 'started') return !!competition.beginDate;
                 if (type === 'unstarted') return !competition.endDate && !competition.beginDate;
                 if (type === 'finished') return competition.endDate && competition.beginDate;
+                if (type === 'finishedYears') return competition.endDate && competition.beginDate;
             }).filter(c => { return year ? String(c.year) === year : true })
             .map(async (competition) => {
-                if (type === 'finished') {
+                if (type === 'finishedYears') {
                     return {
                         id: competition.id,
                         year: competition.year,
                         value: competition.value,
                         started: !!competition.beginDate,
                         finished: (!!competition.endDate && !!competition.beginDate)
-                    }    
+                    }
                 }
 
                 const participants = await this.resultService.resultDetail(competition.id);
@@ -60,11 +61,12 @@ class CompetitionService {
     }
 
     async leaderBoard() {
-        const competitions = await this.find('finished');
+        const competitions = await this.find('finished', undefined);
 
         const calculatedChampions: any = {};
         competitions.forEach(c => {
-            const userParticipants = c.participants
+            const compParticipants = c.participants || [];
+            const userParticipants = compParticipants
                 .filter(p => p?.playerName !== 'RESULTADO' && !!p?.userId);
 
             userParticipants.forEach(up => {
