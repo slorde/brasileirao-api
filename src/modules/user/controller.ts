@@ -1,5 +1,7 @@
 import UserService from "../../services/user-service";
 import { BadRequestError, CustomError } from '../../helpers/custom-exception';
+import { Request, Response, NextFunction } from "express-serve-static-core";
+import { ParsedQs } from "qs";
 
 class Controller {
     private service: UserService;
@@ -58,6 +60,11 @@ class Controller {
         }
 
         return next();
+    }
+
+    check(req: any, res: any, next: Function): Function {
+       res.status(204).send();
+       return next();
     }
 }
 export default Controller;

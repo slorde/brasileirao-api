@@ -12,4 +12,9 @@ router.post('/', (req, res, next) => {
     return controller.create(req, res, next);
 });
 
+router.get('/check', (req, res, next) => {
+    const controller = new Controller();
+    return controller.check(req, res, next);
+});
+
 module.exports = router;
