@@ -7,6 +7,8 @@ class Competition extends Model {
   public value?: number;
   public beginDate?: Date;
   public endDate?: Date;
+  public winner?: string;
+  public secondWinner?: string;
 }
 
 Competition.init(
@@ -14,7 +16,9 @@ Competition.init(
     year: Sequelize.INTEGER,
     value: Sequelize.FLOAT,
     beginDate: Sequelize.DATE,
-    endDate: Sequelize.DATE
+    endDate: Sequelize.DATE,
+    winner: Sequelize.STRING,
+    secondWinner: Sequelize.STRING
   },
   {
     sequelize: database,

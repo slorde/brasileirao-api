@@ -1,5 +1,6 @@
 import Service from "../../services/result-service";
 import { CustomError } from '../../helpers/custom-exception';
+// import migration from '../../migration/migration.json'
 
 class Controller {
     private service: Service;
@@ -47,7 +48,7 @@ class Controller {
             res.status(204).send();
         } catch (error) {
             console.log(error);
-            
+
             res.status(500).send({ message: 'Unexpected error' });
         }
 

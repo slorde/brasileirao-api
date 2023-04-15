@@ -86,6 +86,19 @@ class Controller {
             const result = await this.service.leaderBoard();
             res.status(200).send(result);
         } catch (error) {
+            console.log(error);
+            
+            res.status(500).send({ message: 'Unexpected error' });
+        }
+
+        return next();
+    }
+
+    async updateResults(req: any, res: any, next: Function) {
+        try {
+            await this.service.updateResults();
+            res.status(204).send();
+        } catch (error) {
             res.status(500).send({ message: 'Unexpected error' });
         }
 

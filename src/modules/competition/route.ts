@@ -34,5 +34,9 @@ router.get('/:id/my', auth, (req, res, next) => {
     return controller.findUser(req, res, next);
 });
 
+router.post('/update', auth, (req, res, next) => {
+    const controller = new Controller();
+    return controller.updateResults(req, res, next);
+});
 
 module.exports = router;
