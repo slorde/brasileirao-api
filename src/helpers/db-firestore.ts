@@ -4,7 +4,9 @@ const serviceAccount = {
   "type": "service_account",
   "project_id": "fsoft-br-bb5d4",
   "private_key_id": "d9e1bb13ed220e2d43edc912b04b14683693e590",
-  "private_key": process.env.FIREBASE_PRIVATE_KEY, 
+  "private_key": process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/gm, "\n")
+    : undefined,
   "client_email": "firebase-adminsdk-kmeba@fsoft-br-bb5d4.iam.gserviceaccount.com",
   "client_id": "111074922085515429940",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
