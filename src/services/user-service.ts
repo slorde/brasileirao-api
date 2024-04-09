@@ -1,10 +1,18 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import User from '../model/User';
 import { AuthenticationFailure, BadRequestError } from '../helpers/custom-exception';
+import User from '../model/firestore/User';
+
+
 class UserService {
+    private userModel;
+    constructor() {
+        this.userModel = new User();
+    }
+
+
     async singin(username: string, password: string) {
-        const user = await User.findOne({ where: { username } });
+        const user = await this.userModel.findByUserName(username);
         if (!user) {
             throw new BadRequestError("User don't exist");
         }
@@ -20,29 +28,28 @@ class UserService {
     }
 
     async create(username: string, password: string) {
-        let user = await User.findOne({ where: { username } });
+        let user = await this.userModel.findByUserName(username);
         if (user) {
             throw new BadRequestError('User already registered.');
         }
 
         const encryptedPassword = await bcrypt.hash(password, 10);
-        const usuario = User.build({ username, password: encryptedPassword, createdAt: new Date() })
-        await usuario.save();
+        const usuario = await this.userModel.create({ username, password: encryptedPassword, createdAt: new Date() });        
         return this.singin(username, password);
     }
 
-    generateAuthToken(id: number) {
+    generateAuthToken(id: string) {
         const token = jwt.sign({ _id: id }, process.env.PRIVATE_KEY || '');
         return token;
     };
 
     async upsert(username: string, password: string) {
-        const user = await User.findOne({ where: { username } });
+        const user = await this.userModel.findByUserName(username);
         if (user)
         return user;
         
         const encryptedPassword = await bcrypt.hash(password, 10);
-        return User.create({
+        return this.userModel.create({
             username: username,
             password: encryptedPassword
         });

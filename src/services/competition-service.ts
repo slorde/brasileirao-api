@@ -1,18 +1,17 @@
-import Competition from "../model/Competition";
-import PlayerService from "./player-service";
+import Competition from "../model/firestore/Competition";
 import ResultService from "./result-service";
 
 
 class CompetitionService {
     private resultService;
-    private playerService;
+    private competitionModel;
     constructor() {
         this.resultService = new ResultService();
-        this.playerService = new PlayerService();
+        this.competitionModel = new Competition()
     }
 
     async find(type: string | undefined, year?: string) {
-        const competitions = await Competition.findAll();
+        const competitions = await this.competitionModel.findAll();
         return Promise.all(competitions
             .filter(competition => {
                 if (!type) return true;
@@ -47,12 +46,12 @@ class CompetitionService {
             }));
     }
 
-    async findUser(id: number, userId: number) {
+    async findUser(id: string, userId: string) {
         return this.resultService.getResultsTeams(id, userId);
     }
 
     async create(year: number, value: number) {
-        const competition = await Competition.create({ year, value });
+        const competition = await this.competitionModel.create({ year, value });
         await this.resultService.updateResults(competition.id);
     }
 
@@ -62,14 +61,14 @@ class CompetitionService {
             await this.resultService.updateResults(competition.id);
     }
 
-    async start(competitionId: number) {
-        await Competition.update({ beginDate: new Date() }, { where: { id: competitionId } });
+    async start(competitionId: string) {
+        await this.competitionModel.updateById({ beginDate: new Date() }, competitionId);
     }
 
-    async end(competitionId: number) {
+    async end(competitionId: string) {
         await this.resultService.updateResults(competitionId);
 
-        const competition = await Competition.findOne({ where: { id: competitionId } });
+        const competition = await this.competitionModel.findById(competitionId);
         const competitions = await this.find(undefined, String(competition?.year));
 
         if (!competitions.length) throw new Error('Competition doest exist');
@@ -81,14 +80,15 @@ class CompetitionService {
 
         const scoreSortedParticipants = userParticipants
             .sort((a, b) => a?.score - b?.score);
-        const winner = scoreSortedParticipants[0];
+        const winner = scoreSortedParticipants[0]?.playerName;
 
-        let secondWinner;
+        let secondWinner = '';
         if (scoreSortedParticipants[1]?.score === scoreSortedParticipants[0]?.score) {
-            secondWinner = scoreSortedParticipants[1];
+            secondWinner = scoreSortedParticipants[1]?.playerName;
         }
 
-        await Competition.update({ endDate: new Date(), winner, secondWinner }, { where: { id: competitionId } });
+        //await this.competitionModel.update({ endDate: new Date(), winner, secondWinner }, { where: { id: competitionId } });
+        await this.competitionModel.updateById({ endDate: new Date(), winner, secondWinner }, competitionId);
     }
 
     async leaderBoard() {

@@ -28,6 +28,8 @@ class Controller {
                 token
             });
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
@@ -52,6 +54,8 @@ class Controller {
                 token
             });
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {

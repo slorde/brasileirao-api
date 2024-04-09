@@ -1,6 +1,6 @@
 import Service from "../../services/result-service";
 import { CustomError } from '../../helpers/custom-exception';
-// import migration from '../../migration/migration.json'
+ import migration from '../../migration/migration.json'
 
 class Controller {
     private service: Service;
@@ -44,7 +44,7 @@ class Controller {
 
     async migration(req: any, res: any, next: Function) {
         try {
-            await this.service.migrate({});
+            await this.service.migrate(migration);
             res.status(204).send();
         } catch (error) {
             console.log(error);

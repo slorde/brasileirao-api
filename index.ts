@@ -2,16 +2,6 @@ import * as dotenv from 'dotenv'
 dotenv.config();
 import express from 'express';
 import cors from 'cors';
-import database from './src/helpers/db';
-
-(async () => {
-    try {
-        await database.sync();
-        console.log('Database synced');
-    } catch (error) {
-        console.log('Database sync error', error);
-    }
-})();
 
 const app = express();
 app.use(cors());

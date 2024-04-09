@@ -1,33 +1,38 @@
-import { Op } from "sequelize";
-import Player from "../model/Player";
+import Player from "../model/firestore/Player";
 
 class PlayerService {
+    private playerModel;
+    constructor() {
+        this.playerModel = new Player()
+    }
+
     async getResultPlayer() {
         return this.getPlayerByName('RESULTADO');
     }
 
     async getUserPlayers() {
-        return Player.findAll({ where: { UserId: { [Op.ne]: null } } });
+        const allPlayers =  await this.playerModel.findAll();
+        return allPlayers.filter(player => !!player.UserId)
     }
 
-    async getUserPlayer(id: number, name: string) {
-        const player = await Player.findOne({ where: { UserId: id } });
+    async getUserPlayer(id: string, name: string) {
+        const player = await this.playerModel.findByUserId(id);
 
         if (!player) {
-            return Player.create({ name, UserId: id })
+            return this.playerModel.create({ name, UserId: id })
         }
 
         return player;
     }
 
-    async getPlayer(id: number) {
-        return Player.findOne({ where: { id } })
+    async getPlayer(id: string) {
+        return this.playerModel.findById(id);
     }
 
     async getPlayerByName(name: string) {
-        const player = await Player.findOne({ where: { name } });
+        const player = await this.playerModel.findByName(name);
         if (!player)
-            return Player.create({ name });
+            return this.playerModel.create({ name });
 
         return player;
     }

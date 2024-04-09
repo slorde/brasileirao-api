@@ -15,6 +15,8 @@ class Controller {
             const competitions = await this.service.find(type, year);
             res.status(200).send(competitions);
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
@@ -47,8 +49,12 @@ class Controller {
             }
 
             await this.service.create(year, value);
+            console.log('1');
+            
             res.status(204).send();
         } catch (error) {
+            console.log(error);
+            
             if (error instanceof CustomError) {
                 res.status(error.statusCode).send({ message: error.message });
             } else {
