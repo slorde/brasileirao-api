@@ -1,22 +1,27 @@
 import database from '../../helpers/db-firestore';
-import Competition from './Competition';
 const hash = require('object-hash');
 
-type WhereType = {
-  where: any
-}
-
 class BaseModel {
+  private cache = {} as any;
 
   getModelName() {
     return 'base'
   }
 
+  private addToCache(data: any[]) {
+    this.cache[this.getModelName()] = data;
+  }
+
   async findAll() {
+    if (this.cache[this.getModelName()]) return this.cache[this.getModelName()];
+
     const allElements = await database.collection(this.getModelName()).get();
+
+    this.addToCache(allElements);
+
     const result = [] as any[];
     allElements.forEach((element: any) => {
-      result.push( { id: element.id, ...element.data() });
+      result.push({ id: element.id, ...element.data() });
     });
 
     return result;
@@ -42,9 +47,13 @@ class BaseModel {
     for (const key in updatedData) {
       actualData[key] = updatedData[key];
     }
-    
+
     const docRefUpdate = await database.collection(this.getModelName()).doc(id);
     docRefUpdate.set(actualData);
+  }
+
+  async deleteById(id: string): Promise<any> {
+    return database.collection(this.getModelName()).doc(id).delete();
   }
 }
 

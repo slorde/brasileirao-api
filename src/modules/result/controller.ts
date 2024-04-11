@@ -1,6 +1,6 @@
 import Service from "../../services/result-service";
 import { CustomError } from '../../helpers/custom-exception';
- //import migration from '../../migration/migration.json'
+//import migration from '../../migration/update2023.json'
 
 class Controller {
     private service: Service;

@@ -1,4 +1,3 @@
-import fetch from 'cross-fetch';
 import Result from "../model/firestore/Result";
 import PlayerService from "./player-service";
 import TeamService from "./team-service";
@@ -7,10 +6,6 @@ import Competition from '../model/firestore/Competition';
 import * as cheerio from 'cheerio';
 import axios from 'axios'
 
-type ApiFutebol = {
-    posicao: number,
-    nome: string
-}
 
 type Standings = {
     position: number,
@@ -44,7 +39,6 @@ class ResultService {
 
             let saida = null;
             $('#scriptReact')?.each((i, item): void => {
-                console.log(i);
                 const classificacao = $(item.children).text();
                 if (!classificacao) return;
                 const textClassificacao = classificacao.substring(classificacao.indexOf('const classificacao = '), classificacao.length)
@@ -238,7 +232,8 @@ class ResultService {
             const exists = await this.competitionModel.findByYear(resultado.ano);
             if (exists) continue;
 
-            const competition = await this.competitionModel.create({ year: resultado.ano, value: 0, beginDate: new Date(), endDate: new Date() });
+            const competition = await this.competitionModel.create({ year: resultado.ano, value: 0, beginDate: new Date() });
+            await this.resultModel.delete(competition.id);
             for (const playersResults of resultado.classificacoes) {
                 const p = await this.playerService.getPlayerByName(playersResults.player);
                 for (const res of playersResults.results) {
@@ -267,8 +262,7 @@ class ResultService {
             finished: (!!competition.endDate && !!competition.beginDate),
             participants
         }
-        console.log(participants);
-        
+
         const compParticipants = competitionData.participants || [];
         const userParticipants = compParticipants
             .filter(p => p?.playerName !== 'RESULTADO' && !!p?.userId);
@@ -276,13 +270,12 @@ class ResultService {
         const scoreSortedParticipants = userParticipants
             .sort((a, b) => a?.score - b?.score);
         const winner = scoreSortedParticipants[0]?.playerName;
-        console.log(competition.year, scoreSortedParticipants);
-        
+
         let secondWinner = '';
         if (scoreSortedParticipants[1]?.score === scoreSortedParticipants[0]?.score) {
             secondWinner = scoreSortedParticipants[1]?.playerName;
         }
-        
+
         await this.competitionModel.updateById({ endDate: new Date(), winner, secondWinner }, competitionId);
     }
 }

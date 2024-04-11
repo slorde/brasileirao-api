@@ -33,6 +33,16 @@ class Result extends BaseModel {
     const allResults = await this.findAll();
     return allResults.filter(result => result.CompetitionId === competitionId)
   }
+
+  async delete(competitionId: string): Promise<any> {
+    const results = await this.findByCompetition(competitionId);
+    
+    return Promise.all(results.map((r) => {
+      return this.deleteById(r.id)
+
+    }))
+
+  }
 }
 
 export default Result;
